@@ -1,0 +1,13 @@
+[Unit]
+Description=thmanyah SRT contribution source
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# env vars come from cloud-init, see user-data.sh.tftpl
+ExecStart=/opt/source/run-source.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

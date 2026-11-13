@@ -1,0 +1,34 @@
+#!/bin/bash
+set -eux
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update -y
+apt-get install -y ffmpeg curl
+
+mkdir -p /opt/source
+cat > /opt/source/run-source.sh <<'RUNEOF'
+${run_source_sh}
+RUNEOF
+chmod +x /opt/source/run-source.sh
+
+cat > /etc/systemd/system/ffmpeg-srt.service <<EOF
+[Unit]
+Description=thmanyah SRT contribution source
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment=SRT_PORT=${srt_port}
+Environment=SRT_LATENCY_US=${srt_latency_us}
+Environment=SOURCE_VIDEO_URL=${source_video_url}
+ExecStart=/opt/source/run-source.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable ffmpeg-srt
+systemctl start ffmpeg-srt
